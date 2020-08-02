@@ -1,2 +1,2 @@
-# ECGAanalysis
+# ECGAnalysis
  ECGデータの解析
