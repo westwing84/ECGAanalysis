@@ -74,7 +74,7 @@ def get_rri(data_time, data_ecg):
 
 
 # RRIのデータからmeanNNを算出
-def get_meannn(data_time_resample, data_rri, windowsize):
+def get_meannn(data_time_resample, data_rri, windowsize=300, slide=10):
     t1 = 1
     t2 = t1 + windowsize
     data_meannn = []
@@ -84,9 +84,9 @@ def get_meannn(data_time_resample, data_rri, windowsize):
         ind2 = np.where(data_time_resample == t2)[0][0]
         data_rri_tmp = data_rri[ind1:ind2+1]
         data_meannn.append(np.mean(data_rri_tmp))
-        data_time.append(np.mean(np.array([t1, t2])))
-        t1 = t2
-        t2 += windowsize
+        data_time.append(t1)
+        t1 += slide
+        t2 += slide
     data_meannn = np.array(data_meannn)
     data_time = np.array(data_time)
 
@@ -94,7 +94,7 @@ def get_meannn(data_time_resample, data_rri, windowsize):
 
 
 # RRIのデータからSDNNを算出
-def get_sdnn(data_time_resample, data_rri, windowsize):
+def get_sdnn(data_time_resample, data_rri, windowsize=300, slide=10):
     t1 = 1
     t2 = t1 + windowsize
     data_sdnn = []
@@ -104,9 +104,9 @@ def get_sdnn(data_time_resample, data_rri, windowsize):
         ind2 = np.where(data_time_resample == t2)[0][0]
         data_rri_tmp = data_rri[ind1:ind2 + 1]
         data_sdnn.append(np.std(data_rri_tmp))
-        data_time.append(np.mean(np.array([t1, t2])))
-        t1 = t2
-        t2 += windowsize
+        data_time.append(t1)
+        t1 += slide
+        t2 += slide
     data_sdnn = np.array(data_sdnn)
     data_time = np.array(data_time)
 
