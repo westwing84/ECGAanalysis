@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import datetime
+from scipy import interpolate
 
 
 # csvファイルからECGデータを取得し，時間データとともに配列に格納
@@ -59,6 +60,55 @@ def get_rri(data_time, data_ecg):
         data_time_x.append(t1)
         t1 = t2
         t = t1 + t_slide
+    data_time_x = np.array(data_time_x)
 
-    return data_time_x, data_rri
+    # データをリサンプリングして間隔を一定にする
+    t0 = 1
+    tf = int(data_time_x[-1])
+    dt = 1      # 時間間隔[s]
+    data_time_resample = np.arange(t0, tf + dt, dt)
+    f = interpolate.interp1d(data_time_x, data_rri, kind='cubic')   # 補完関数
+    data_rri = f(data_time_resample)
+
+    return data_time_resample, data_rri
+
+
+# RRIのデータからmeanNNを算出
+def get_meannn(data_time_resample, data_rri, windowsize):
+    t1 = 1
+    t2 = t1 + windowsize
+    data_meannn = []
+    data_time = []
+    while t2 <= data_time_resample[-1]:
+        ind1 = np.where(data_time_resample == t1)[0][0]
+        ind2 = np.where(data_time_resample == t2)[0][0]
+        data_rri_tmp = data_rri[ind1:ind2+1]
+        data_meannn.append(np.mean(data_rri_tmp))
+        data_time.append(np.mean(np.array([t1, t2])))
+        t1 = t2
+        t2 += windowsize
+    data_meannn = np.array(data_meannn)
+    data_time = np.array(data_time)
+
+    return data_time, data_meannn
+
+
+# RRIのデータからSDNNを算出
+def get_sdnn(data_time_resample, data_rri, windowsize):
+    t1 = 1
+    t2 = t1 + windowsize
+    data_sdnn = []
+    data_time = []
+    while t2 <= data_time_resample[-1]:
+        ind1 = np.where(data_time_resample == t1)[0][0]
+        ind2 = np.where(data_time_resample == t2)[0][0]
+        data_rri_tmp = data_rri[ind1:ind2 + 1]
+        data_sdnn.append(np.std(data_rri_tmp))
+        data_time.append(np.mean(np.array([t1, t2])))
+        t1 = t2
+        t2 += windowsize
+    data_sdnn = np.array(data_sdnn)
+    data_time = np.array(data_time)
+
+    return data_time, data_sdnn
 
