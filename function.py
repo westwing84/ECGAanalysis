@@ -112,3 +112,46 @@ def get_sdnn(data_time_resample, data_rri, windowsize=300, slide=10):
 
     return data_time, data_sdnn
 
+
+# RRIのデータからRMSSDを算出
+def get_rmssd(data_time_resample, data_rri, windowsize=300, slide=10):
+    t1 = 1
+    t2 = t1 + windowsize
+    data_rmssd = []
+    data_time = []
+    while t2 <= data_time_resample[-1]:
+        ind1 = np.where(data_time_resample == t1)[0][0]
+        ind2 = np.where(data_time_resample == t2)[0][0]
+        data_rri_tmp = data_rri[ind1:ind2 + 1]
+        tmp = np.diff(data_rri_tmp, n=1)
+        tmp = np.average(tmp ** 2)
+        data_rmssd.append(np.sqrt(tmp))
+        data_time.append(t1)
+        t1 += slide
+        t2 += slide
+    data_rmssd = np.array(data_rmssd)
+    data_time = np.array(data_time)
+
+    return data_time, data_rmssd
+
+
+# RRIのデータからNN50を算出
+def get_nn50(data_time_resample, data_rri, windowsize=300, slide=10):
+    t1 = 1
+    t2 = t1 + windowsize
+    data_nn50 = []
+    data_time = []
+    while t2 <= data_time_resample[-1]:
+        ind1 = np.where(data_time_resample == t1)[0][0]
+        ind2 = np.where(data_time_resample == t2)[0][0]
+        data_rri_tmp = data_rri[ind1:ind2 + 1]
+        tmp = np.diff(data_rri_tmp, n=1)
+        data_nn50.append(len(tmp[tmp > 0.05]))
+        data_time.append(t1)
+        t1 += slide
+        t2 += slide
+    data_nn50 = np.array(data_nn50)
+    data_time = np.array(data_time)
+
+    return data_time, data_nn50
+

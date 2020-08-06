@@ -2,14 +2,14 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-from function import get_ecg_to_csv, get_rri, get_meannn, get_sdnn
+import function
 
 # ファイルから心拍データを読み込む(Pandas使用)
 # filename = input('データファイルの名前を入力してください: ')
 filename = '20200505_130107_379_HB_PW.csv'
-data_time, data_ecg = get_ecg_to_csv(filename)
+data_time, data_ecg = function.get_ecg_to_csv(filename)
 
-
+'''
 # グラフにプロットするためのNumPy配列を用意
 data_plot = np.array([data_time, data_ecg])
 # データを10秒ごとに分割
@@ -29,10 +29,11 @@ for i in range(j):
     plt.xlabel("Time [s]")
     plt.ylabel("ECG [μV]")
 plt.show()
-
+'''
 
 # RR Interval
-data_time_resample, data_rri = get_rri(data_time, data_ecg)
+data_time_resample, data_rri = function.get_rri(data_time, data_ecg)
+'''
 plt.figure()
 plt.plot(data_time_resample, data_rri)
 # plt.xlim(0, 1000)
@@ -40,26 +41,48 @@ plt.title("RR Interval")
 plt.xlabel('Time [s]')
 plt.ylabel("RRI [s]")
 plt.show()
-
+'''
 # meanNN
-data_time_x, data_meannn = get_meannn(data_time_resample, data_rri, windowsize=180, slide=10)
+data_time_x, data_meannn = function.get_meannn(data_time_resample, data_rri, windowsize=180, slide=5)
 plt.figure()
+plt.subplot(4, 1, 1)
 plt.plot(data_time_x, data_meannn)
 # plt.xlim(0, 1000)
 plt.ylim(0.6, 1.2)
 plt.title("meanNN")
 plt.xlabel('Time [s]')
 plt.ylabel("meanNN [s]")
-plt.show()
 
 # SDNN
-data_time_x, data_sdnn = get_sdnn(data_time_resample, data_rri, windowsize=180, slide=10)
-plt.figure()
+data_time_x, data_sdnn = function.get_sdnn(data_time_resample, data_rri, windowsize=180, slide=5)
+plt.subplot(4, 1, 2)
 plt.plot(data_time_x, data_sdnn)
 # plt.xlim(0, 1000)
 plt.ylim(0, 0.2)
 plt.title("SDNN")
 plt.xlabel('Time [s]')
 plt.ylabel("SDNN [s]")
+
+# RMSSD
+data_time_x, data_rmssd = function.get_rmssd(data_time_resample, data_rri, windowsize=180, slide=5)
+plt.subplot(4, 1, 3)
+plt.plot(data_time_x, data_rmssd)
+# plt.xlim(0, 1000)
+plt.ylim(0, 0.2)
+plt.title("RMSSD")
+plt.xlabel('Time [s]')
+plt.ylabel("RMSSD [s]")
+
+# NN50
+data_time_x, data_nn50 = function.get_nn50(data_time_resample, data_rri, windowsize=180, slide=5)
+plt.subplot(4, 1, 4)
+plt.plot(data_time_x, data_nn50)
+# plt.xlim(0, 1000)
+# plt.ylim(0, 0.2)
+plt.title("NN50")
+plt.xlabel('Time [s]')
+plt.ylabel("NN50")
+
+plt.tight_layout()
 plt.show()
 
